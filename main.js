@@ -1,39 +1,26 @@
+import { apiKey } from "./environment/key.js"
+
 const moviesContainer = document.querySelector('.movies')
 
-const movies = [
-  {
-    image: 'https://img.elo7.com.br/product/original/3FBA809/big-poster-filme-batman-2022-90x60-cm-lo002-poster-batman.jpg',
-    title: 'Batman',
-    rating: 9.2,
-    year: 2022,
-    description: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.",
-    isFavorited: false
-  },
-  {
-    image: 'https://upload.wikimedia.org/wikipedia/pt/thumb/9/9b/Avengers_Endgame.jpg/250px-Avengers_Endgame.jpg',
-    title: 'Avengers',
-    rating: 9.2,
-    year: 2019,
-    description: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.",
-    isFavorited: false
-  },
-  {
-    image: 'https://upload.wikimedia.org/wikipedia/en/1/17/Doctor_Strange_in_the_Multiverse_of_Madness_poster.jpg',
-    title: 'Doctor Strange',
-    rating: 9.2,
-    year: 2022,
-    description: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.",
-    isFavorited: true
-  },
-]
+async function getPopularMovies() {
+  const url = `https://api.themoviedb.org/3/movie/popular?api_key=${apiKey}&language=en-US&page=1`
+  const fetchResponse = await fetch(url)
+  const { results } = await fetchResponse.json()
+  return results
+} 
 
-window.onload = function() {
+window.onload = async function() {
+  const movies = await getPopularMovies()
   movies.forEach(movie => renderMovie(movie))
 }
 
 function renderMovie(movie) {
 
-  const { title, image, rating, year, description, isFavorited } = movie
+  const { title, poster_path, vote_average, release_date, overview } = movie
+  const isFavorited = false // implementação da lógica em um dia posterior
+
+  const year = new Date(release_date).getFullYear()
+  const image = `https://image.tmdb.org/t/p/w500${poster_path}`
 
   const movieElement = document.createElement('div')
   movieElement.classList.add('movie')
@@ -68,7 +55,7 @@ function renderMovie(movie) {
   starImage.alt = 'Star'
   const movieRate = document.createElement('span')
   movieRate.classList.add('movie-rate')
-  movieRate.textContent = rating
+  movieRate.textContent = vote_average
   ratingContainer.appendChild(starImage)
   ratingContainer.appendChild(movieRate)
   informations.appendChild(ratingContainer)
@@ -89,7 +76,7 @@ function renderMovie(movie) {
   const movieDescriptionContainer = document.createElement('div')
   movieDescriptionContainer.classList.add('movie-description')
   const movieDescription = document.createElement('span')
-  movieDescription.textContent = description
+  movieDescription.textContent = overview
   movieDescriptionContainer.appendChild(movieDescription)
   
   movieElement.appendChild(movieInformations)
