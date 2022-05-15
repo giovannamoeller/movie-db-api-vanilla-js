@@ -41,6 +41,46 @@ async function getPopularMovies() {
   return results
 } 
 
+function favoriteButtonPressed(event, movie) {
+  const favoriteState = {
+    favorited: 'images/heart-fill.svg',
+    notFavorited: 'images/heart.svg'
+  }
+
+  if(event.target.src.includes(favoriteState.notFavorited)) {
+    // aqui ele será favoritado
+    event.target.src = favoriteState.favorited
+    saveToLocalStorage(movie)
+  } else {
+    // aqui ele será desfavoritado
+    event.target.src = favoriteState.notFavorited
+    removeFromLocalStorage(movie.id)
+  }
+}
+
+function getFavoriteMovies() {
+  return JSON.parse(localStorage.getItem('favoriteMovies'))
+}
+
+function saveToLocalStorage(movie) {
+  const movies = getFavoriteMovies() || []
+  movies.push(movie)
+  const moviesJSON = JSON.stringify(movies)
+  localStorage.setItem('favoriteMovies', moviesJSON)
+}
+
+function checkMovieIsFavorited(id) {
+  const movies = getFavoriteMovies() || []
+  return movies.find(movie => movie.id == id)
+}
+
+function removeFromLocalStorage(id) {
+  const movies = getFavoriteMovies() || []
+  const findMovie = movies.find(movie => movie.id == id)
+  const newMovies = movies.filter(movie => movie.id != findMovie.id)
+  localStorage.setItem('favoriteMovies', JSON.stringify(newMovies))
+}
+
 window.onload = async function() {
   const movies = await getPopularMovies()
   movies.forEach(movie => renderMovie(movie))
@@ -48,8 +88,8 @@ window.onload = async function() {
 
 function renderMovie(movie) {
 
-  const { title, poster_path, vote_average, release_date, overview } = movie
-  const isFavorited = false // implementação da lógica em um dia posterior
+  const { id, title, poster_path, vote_average, release_date, overview } = movie
+  const isFavorited = checkMovieIsFavorited(id)
 
   const year = new Date(release_date).getFullYear()
   const image = `https://image.tmdb.org/t/p/w500${poster_path}`
@@ -98,6 +138,7 @@ function renderMovie(movie) {
   favoriteImage.src = isFavorited ? 'images/heart-fill.svg' : 'images/heart.svg'
   favoriteImage.alt = 'Heart'
   favoriteImage.classList.add('favoriteImage')
+  favoriteImage.addEventListener('click', (event) => favoriteButtonPressed(event, movie))
   const favoriteText = document.createElement('span')
   favoriteText.classList.add('movie-favorite')
   favoriteText.textContent = 'Favoritar'
