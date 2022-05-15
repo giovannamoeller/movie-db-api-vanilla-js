@@ -3,9 +3,10 @@ import { apiKey } from "./environment/key.js"
 const moviesContainer = document.querySelector('.movies')
 const input = document.querySelector('input')
 const searchButton = document.querySelector('.searchIcon')
+const checkboxInput = document.querySelector('input[type="checkbox"]')
 
+checkboxInput.addEventListener('change', checkCheckboxStatus)
 searchButton.addEventListener('click', searchMovie)
-
 input.addEventListener('keyup', function(event) {
   console.log(event.key)
   if (event.keyCode == 13) { // Press enter (submit)
@@ -13,6 +14,18 @@ input.addEventListener('keyup', function(event) {
     return
   }
 })
+
+function checkCheckboxStatus() {
+  const isChecked = checkboxInput.checked
+  if (isChecked) {
+    cleanAllMovies()
+    const movies = getFavoriteMovies() || []
+    movies.forEach(movie => renderMovie(movie))
+  } else {
+    cleanAllMovies()
+    getAllPopularMovies()
+  }
+}
 
 async function searchMovie() {
   const inputValue = input.value
@@ -81,9 +94,13 @@ function removeFromLocalStorage(id) {
   localStorage.setItem('favoriteMovies', JSON.stringify(newMovies))
 }
 
-window.onload = async function() {
+async function getAllPopularMovies() {
   const movies = await getPopularMovies()
   movies.forEach(movie => renderMovie(movie))
+}
+
+window.onload = function() {
+  getAllPopularMovies()
 }
 
 function renderMovie(movie) {
