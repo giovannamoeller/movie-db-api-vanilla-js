@@ -1,4 +1,5 @@
 import { API } from "./services/api.js"
+import { LocalStorage } from "./services/localStorage.js"
 
 const moviesContainer = document.querySelector('.movies')
 const input = document.querySelector('input')
@@ -18,7 +19,7 @@ function checkCheckboxStatus() {
   const isChecked = checkboxInput.checked
   if (isChecked) {
     cleanAllMovies()
-    const movies = getFavoriteMovies() || []
+    const movies = LocalStorage.getFavoriteMovies() || []
     movies.forEach(movie => renderMovie(movie))
   } else {
     cleanAllMovies()
@@ -48,35 +49,12 @@ function favoriteButtonPressed(event, movie) {
   if(event.target.src.includes(favoriteState.notFavorited)) {
     // aqui ele será favoritado
     event.target.src = favoriteState.favorited
-    saveToLocalStorage(movie)
+    LocalStorage.saveToLocalStorage(movie)
   } else {
     // aqui ele será desfavoritado
     event.target.src = favoriteState.notFavorited
-    removeFromLocalStorage(movie.id)
+    LocalStorage.removeFromLocalStorage(movie.id)
   }
-}
-
-function getFavoriteMovies() {
-  return JSON.parse(localStorage.getItem('favoriteMovies'))
-}
-
-function saveToLocalStorage(movie) {
-  const movies = getFavoriteMovies() || []
-  movies.push(movie)
-  const moviesJSON = JSON.stringify(movies)
-  localStorage.setItem('favoriteMovies', moviesJSON)
-}
-
-function checkMovieIsFavorited(id) {
-  const movies = getFavoriteMovies() || []
-  return movies.find(movie => movie.id == id)
-}
-
-function removeFromLocalStorage(id) {
-  const movies = getFavoriteMovies() || []
-  const findMovie = movies.find(movie => movie.id == id)
-  const newMovies = movies.filter(movie => movie.id != findMovie.id)
-  localStorage.setItem('favoriteMovies', JSON.stringify(newMovies))
 }
 
 async function getAllPopularMovies() {
@@ -91,7 +69,7 @@ window.onload = function() {
 function renderMovie(movie) {
 
   const { id, title, poster_path, vote_average, release_date, overview } = movie
-  const isFavorited = checkMovieIsFavorited(id)
+  const isFavorited = LocalStorage.checkMovieIsFavorited(id)
 
   const year = new Date(release_date).getFullYear()
   const image = `https://image.tmdb.org/t/p/w500${poster_path}`
