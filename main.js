@@ -2,17 +2,16 @@ import { API } from "./services/api.js"
 import { LocalStorage } from "./services/localStorage.js"
 
 const moviesContainer = document.querySelector('.movies')
+const form = document.querySelector('form')
 const input = document.querySelector('input')
 const searchButton = document.querySelector('.searchIcon')
 const checkboxInput = document.querySelector('input[type="checkbox"]')
 
 checkboxInput.addEventListener('change', checkCheckboxStatus)
 searchButton.addEventListener('click', searchMovie)
-input.addEventListener('keydown', function(event) {
-  if (event.keyCode == 13) { // Press enter (submit)
-    searchMovie()
-    return
-  }
+form.addEventListener('submit', function(event) {
+  event.preventDefault()
+  searchMovie()
 })
 
 function checkCheckboxStatus() {
