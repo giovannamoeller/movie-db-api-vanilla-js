@@ -1,4 +1,4 @@
-import { apiKey } from "../environment/key.js"
+import { apiKey } from "../services/key.js"
 
 async function searchMovieByName(title) {
   const url = `https://api.themoviedb.org/3/search/movie?api_key=${apiKey}&query=${title}&language=en-US&page=1`
